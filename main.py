@@ -30,7 +30,3 @@ async def look_for_email_news():
 
 client.loop.create_task(look_for_email_news())                
 client.run(token)
-
-
-
-🐧🐧🐧🐧
