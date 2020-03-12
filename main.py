@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from imap_tools import MailBox, Q
-from constants import *
+from constants import mail_address, mail_password, mail_server, mail_folder, \
+                      token, channel_id, time_sleep
 
 import discord
 import asyncio
 import datetime
+from bs4 import BeautifulSoup
 
 client = discord.Client()
 
@@ -22,7 +24,13 @@ async def look_for_email_news():
       for msg in mailbox.fetch(Q(seen=False)):
          if "[\U0001f40dPyTricks]" in msg.subject:
             print("A new message was found !")
-            txt = msg.text[:msg.text.find("This email is part of the Python")]           
+            soup = BeautifulSoup(msg.html, 'html.parser')
+            L = soup.find_all("div")
+            txt = "```python\n"
+            for l in L:
+               if "border-style: solid" in l.attrs["style"]:
+                  txt += l.text
+            txt += "```"
             await client.get_channel(channel_id).send(txt)
       print("time = " + str(datetime.datetime.now()), end = "\r")
       mailbox.logout()
