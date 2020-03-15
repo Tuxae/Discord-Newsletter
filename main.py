@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from imap_tools import MailBox, Q
-from constants import mail_address, mail_password, mail_server, mail_folder, \
-                      token, channel_id, time_sleep
+import new_email_checker as nec
+import constants as cs
 
 import discord
 import asyncio
 import datetime
-from bs4 import BeautifulSoup
 
 client = discord.Client()
 
@@ -19,22 +17,13 @@ async def on_ready():
 async def look_for_email_news():
    await client.wait_until_ready()
    while(True):
-      mailbox = MailBox(mail_server)
-      mailbox.login(mail_address, mail_password, initial_folder = mail_folder)
-      for msg in mailbox.fetch(Q(seen=False)):
-         if "[\U0001f40dPyTricks]" in msg.subject:
-            print("A new message was found !")
-            soup = BeautifulSoup(msg.html, 'html.parser')
-            L = soup.find_all("div")
-            txt = "```python\n"
-            for l in L:
-               if "border-style: solid" in l.attrs["style"]:
-                  txt += l.text
-            txt += "```"
-            await client.get_channel(channel_id).send(txt)
+      mailbox = nec.mail_connexion()
+      txt = nec.mail_get_newswletter_text(mailbox)
+      if len(txt) > 0:
+          await client.get_channel(cs.channel_id).send(txt)
       print("time = " + str(datetime.datetime.now()), end = "\r")
       mailbox.logout()
-      await asyncio.sleep(time_sleep)
+      await asyncio.sleep(cs.time_sleep)
 
 client.loop.create_task(look_for_email_news())                
-client.run(token)
+client.run(cs.token)
