@@ -23,6 +23,6 @@ def mail_parse_newswletter_text(msg):
 
 def mail_get_newswletter_text(mailbox):
     for msg in mailbox.fetch(Q(seen=False)):
-        if "[\U0001f40dPyTricks]" in msg.subject and message.from_ == "info@realpython.com":
+        if "[\U0001f40dPyTricks]" in msg.subject and msg.from_ == "info@realpython.com":
             return mail_parse_newswletter_text(msg)
     return ""
